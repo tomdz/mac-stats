@@ -1,10 +1,12 @@
 var restify = require('restify'),
+    filed   = require('filed'),
     xml2js  = require('xml2js'),
     spawn   = require('child_process').spawn;
 
-function respond(req, res, next) {
-  var parser = new xml2js.Parser();
+var server = restify.createServer({name: 'mac-stats'});
+var parser = new xml2js.Parser();
 
+function sendStats(req, res, next) {
   parser.addListener('end', function(result) {
     res.send(result);
   });
@@ -16,8 +18,17 @@ function respond(req, res, next) {
   });
 }
 
-var server = restify.createServer({name: 'mac-stats'});
-server.get('/', respond);
+function sendStatic(req, res, next) {
+  var path = req.params[0];
+  if (path === undefined || path === '/') {
+    path = 'index.html';
+  }
+  filed('static/' + path.replace(/\.\.\//g, '')).pipe(res);
+  next();
+}
+
+server.get('/stats', sendStats);
+server.get(/^(.*)/, sendStatic);
 
 server.listen(8080, function() {
   console.log('%s listening at %s', server.name, server.url);
