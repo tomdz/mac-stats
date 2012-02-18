@@ -1,21 +1,12 @@
 var restify = require('restify'),
     filed   = require('filed'),
-    xml2js  = require('xml2js'),
-    spawn   = require('child_process').spawn;
+    sigar   = require('sigar');
 
 var server = restify.createServer({name: 'mac-stats'});
-var parser = new xml2js.Parser();
 
 function sendStats(req, res, next) {
-  parser.addListener('end', function(result) {
-    res.send(result);
-  });
-
-  system_profiler = spawn('system_profiler', ['-xml', '-detailLevel', 'full']);
-
-  system_profiler.stdout.on('data', function (data) {
-    parser.parseString(data);
-  });
+  result = { cpus: sigar().cpuList(), time: new Date().getTime() };
+  res.send(result);
 }
 
 function sendStatic(req, res, next) {
