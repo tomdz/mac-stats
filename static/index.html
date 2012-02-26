@@ -20,11 +20,15 @@
                   .attr("height", height + 2*margin)
                   .append('svg:g')
                   .attr('transform', "translate(" + margin + "," + margin + ")");
+      var colors = d3.scale.category10();
       var line = d3.svg.line()
                    .x(function(d) { return xScale(new Date(d.time)); })
                    .y(function(d) { return yScale(d.cpu); });
       vis.append("svg:path")
-         .attr("d", line(data));
+         .attr("d", line(data))
+         .style("fill", "none")
+         .style("stroke-width", "2")
+         .style("stroke", function(d, i) { return colors(i) });
 
       var xAxis = d3.svg.axis()
                     .scale(xScale)
@@ -42,12 +46,23 @@
       vis.append("svg:g")
          .attr("class", "xTick")
          .attr("transform", "translate(0," + height + ")")
-         .call(xAxis);
+         .call(xAxis)
+         .style("fill", "black")
+         .style("stroke-width", "1")
+         .style("stroke-opacity", "0.4")
+         .style("shape-rendering", "crispedges")
+         .style("stroke", "#333")
+         .style("font", "lighter 9pt Helvetica");
       vis.append("svg:g")
          .attr("class", "yTick")
          .attr("transform", "translate(0,0)")
-         .call(yAxis);
-
+         .call(yAxis)
+         .style("fill", "black")
+         .style("stroke-width", "1px")
+         .style("stroke-opacity", "0.4")
+         .style("shape-rendering", "crispedges")
+         .style("stroke", "#333")
+         .style("font", "lighter 9pt Helvetica");
 
       var prevStats = null;
       setInterval(function() {
